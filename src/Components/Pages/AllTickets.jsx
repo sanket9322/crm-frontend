@@ -4,10 +4,22 @@ import { Link } from "react-router-dom";
 const AllTickets = () => {
   const [tickets, setTickets] = useState([]);
 
+  // ✅ FIX 3: Get auth headers helper
+  const getHeaders = () => {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+  };
+
   const loadTickets = () => {
-    fetch("http://localhost:8080/api/tickets")
+    fetch("http://localhost:8080/api/tickets", {
+      headers: getHeaders()
+    })
       .then(res => res.json())
-      .then(data => setTickets(data));
+      .then(data => setTickets(data))
+      .catch(err => console.error("Error loading tickets:", err));
   };
 
   useEffect(() => {
@@ -16,7 +28,8 @@ const AllTickets = () => {
 
   const deleteTicket = async (id) => {
     await fetch(`http://localhost:8080/api/tickets/${id}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: getHeaders()
     });
     alert("Ticket deleted!");
     loadTickets();

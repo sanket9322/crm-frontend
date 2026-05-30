@@ -1,10 +1,10 @@
+import axios from 'axios';
 import { useState } from 'react';
 import { FaUsers } from "react-icons/fa";
 import { FaPhone } from 'react-icons/fa6';
 import { MdEmail, MdLocationCity } from 'react-icons/md';
 import { TbPasswordMobilePhone } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
-import { addUser } from '../service/api';
 
 // --- Inline Style Objects ---
 const styles = {
@@ -69,7 +69,7 @@ const styles = {
     cursor: "pointer",
   },
   submitBtn: {
-    backgroundColor: "#007bff", // Standard blue accent
+    backgroundColor: "#007bff",
     color: "white",
     padding: "12px",
     fontSize: "16px",
@@ -88,7 +88,7 @@ const Registration = () => {
     contact: "",
     city: "",
     password: "",
-    role: "ROLE_USER"
+    role: "USER"
   });
 
   const navigate = useNavigate();
@@ -97,17 +97,18 @@ const Registration = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
-
-    addUser(user)
-      .then(res => {
-        console.log("Data added", res.data);
-        navigate("/");
-      })
-      .catch(err => {
-        console.error("API Error:", err.response?.data || err.message);
-      });
+    try {
+      // ✅ FIXED: Was calling POST /api/users (requires auth → 403).
+      //           Now correctly calls POST /api/auth/register (public endpoint).
+      await axios.post("http://localhost:8080/api/auth/register", user);
+      alert("Registration successful! Please login.");
+      navigate("/");
+    } catch (err) {
+      console.error("Registration Error:", err.response?.data || err.message);
+      alert("Registration failed. Please try again.");
+    }
   };
 
   return (
@@ -119,77 +120,78 @@ const Registration = () => {
           {/* Name Field */}
           <div style={styles.inputGroup}>
             <FaUsers style={styles.icon} />
-            <input 
+            <input
               style={styles.input}
-              type="text" 
-              name="name" 
-              placeholder="Enter name" 
-              onChange={handleChange} 
-              required 
+              type="text"
+              name="name"
+              placeholder="Enter name"
+              onChange={handleChange}
+              required
             />
           </div>
 
           {/* Email Field */}
           <div style={styles.inputGroup}>
             <MdEmail style={styles.icon} />
-            <input 
+            <input
               style={styles.input}
-              type="email" 
-              name="email" 
-              placeholder="Enter email" 
-              onChange={handleChange} 
-              required 
+              type="email"
+              name="email"
+              placeholder="Enter email"
+              onChange={handleChange}
+              required
             />
           </div>
 
           {/* Phone Field */}
           <div style={styles.inputGroup}>
             <FaPhone style={styles.icon} />
-            <input 
+            <input
               style={styles.input}
-              type="tel" 
-              name="contact" 
-              placeholder="Enter phone" 
-              onChange={handleChange} 
-              required 
+              type="tel"
+              name="contact"
+              placeholder="Enter phone"
+              onChange={handleChange}
+              required
             />
           </div>
 
           {/* City Field */}
           <div style={styles.inputGroup}>
             <MdLocationCity style={styles.icon} />
-            <input 
+            <input
               style={styles.input}
-              type="text" 
-              name="city" 
-              placeholder="Enter city" 
-              onChange={handleChange} 
-              required 
+              type="text"
+              name="city"
+              placeholder="Enter city"
+              onChange={handleChange}
+              required
             />
           </div>
 
           {/* Password Field */}
           <div style={styles.inputGroup}>
             <TbPasswordMobilePhone style={styles.icon} />
-            <input 
+            <input
               style={styles.input}
-              type="password" 
-              name="password" 
-              placeholder="Enter password" 
-              onChange={handleChange} 
-              required 
+              type="password"
+              name="password"
+              placeholder="Enter password"
+              onChange={handleChange}
+              required
             />
           </div>
 
-          {/* Role Selection Dropdown */}
-          <select 
-            style={styles.select} 
-            name="role" 
-            onChange={handleChange} 
+          {/* Role Selection Dropdown — ✅ FIXED: Added ROLE_ADMIN option */}
+          <select
+            style={styles.select}
+            name="role"
+            onChange={handleChange}
             value={user.role}
           >
-            <option value="ROLE_USER">User</option>
-            <option value="ROLE_CUSTOMER">Customer</option>
+            <option value="ADMIN">Admin</option>
+            <option value="USER">User</option>
+            <option value="CUSTOMER">Customer</option>
           </select>
 
           {/* Submit Button */}

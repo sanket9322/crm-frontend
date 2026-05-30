@@ -107,7 +107,10 @@ function EmailComposer() {
     params.append("module", form.module);
 
     try {
-      await axios.post("http://localhost:8080/api/crm/email/send", params);
+      const token = localStorage.getItem("token");
+      await axios.post("http://localhost:8080/api/crm/email/send", params, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       alert("Email sent from CRM!");
       setForm({ to: "", subject: "", body: "", module: "LEAD" });
     } catch (error) {

@@ -97,7 +97,14 @@ const CreateLead = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/api/leads", lead);
+      // ✅ FIX 2: Send JWT token in Authorization header
+      const token = localStorage.getItem("token");
+      await axios.post("http://localhost:8080/api/leads", lead, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
       alert("Lead added successfully");
       setLead({ name: "", email: "", contact: "", city: "", status: "Open" });
       navigate("/alllead");

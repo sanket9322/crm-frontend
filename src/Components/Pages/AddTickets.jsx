@@ -98,9 +98,14 @@ const AddTickets = () => {
     e.preventDefault();
 
     try {
+      // ✅ FIX: Send JWT token in Authorization header
+      const token = localStorage.getItem("token");
       await fetch("http://localhost:8080/api/tickets", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify(ticket)
       });
 

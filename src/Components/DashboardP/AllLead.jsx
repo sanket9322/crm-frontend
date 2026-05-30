@@ -96,7 +96,6 @@ const styles = {
   },
 };
 
-// Dynamic badge styling helper replacement for status classes
 const getStatusBadgeStyle = (status) => {
   const base = {
     padding: "4px 10px",
@@ -111,17 +110,23 @@ const getStatusBadgeStyle = (status) => {
 
   switch (status.toLowerCase()) {
     case "new":
-      return { ...base, backgroundColor: "#e8f0fe", color: "#1a73e8" }; // Blue
+      return { ...base, backgroundColor: "#e8f0fe", color: "#1a73e8" };
     case "active":
-      return { ...base, backgroundColor: "#e6f4ea", color: "#137333" }; // Green
+      return { ...base, backgroundColor: "#e6f4ea", color: "#137333" };
     case "pending":
     case "followup":
-      return { ...base, backgroundColor: "#fef7e0", color: "#b06000" }; // Yellow/Orange
+      return { ...base, backgroundColor: "#fef7e0", color: "#b06000" };
     case "closed":
-      return { ...base, backgroundColor: "#f1f3f5", color: "#5f6368" }; // Gray
+      return { ...base, backgroundColor: "#f1f3f5", color: "#5f6368" };
     default:
       return { ...base, backgroundColor: "#e8f0fe", color: "#1a73e8" };
   }
+};
+
+// ✅ FIX: authAxios replace — axios + JWT token helper
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 const AllLead = () => {
@@ -134,7 +139,9 @@ const AllLead = () => {
 
   const fetchLeads = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/leads");
+      const res = await axios.get("http://localhost:8080/api/leads", {
+        headers: getAuthHeaders()
+      });
       setLeads(res.data);
     } catch (error) {
       console.error("Error fetching leads:", error);
@@ -143,7 +150,9 @@ const AllLead = () => {
 
   const deleteLead = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/leads/${id}`);
+      await axios.delete(`http://localhost:8080/api/leads/${id}`, {
+        headers: getAuthHeaders()
+      });
       fetchLeads();
     } catch (error) {
       console.error("Error deleting lead:", error);
@@ -152,13 +161,11 @@ const AllLead = () => {
 
   return (
     <div style={styles.wrapper}>
-      {/* Header section */}
       <div style={styles.header}>
         <h2 style={styles.title}>Lead List</h2>
         <span style={styles.count}>{leads.length} RECORDS</span>
       </div>
 
-      {/* Table section */}
       <div style={styles.tableContainer}>
         <table style={styles.table}>
           <thead>
@@ -207,7 +214,6 @@ const AllLead = () => {
         </table>
       </div>
 
-      {/* Footer navigation */}
       <div>
         <button style={styles.btnBack} onClick={() => navigate("/udashboard")}>
           Back to Dashboard

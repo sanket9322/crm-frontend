@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-// --- Inline Style Objects ---
 const styles = {
   wrapper: {
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
@@ -24,7 +23,7 @@ const styles = {
     fontWeight: "600",
   },
   count: {
-    backgroundColor: "#e2f0d9", // Professional light mint color for feedback metrics
+    backgroundColor: "#e2f0d9",
     color: "#385723",
     padding: "6px 12px",
     borderRadius: "20px",
@@ -32,9 +31,7 @@ const styles = {
     fontWeight: "bold",
     letterSpacing: "0.5px",
   },
-  tableContainer: {
-    overflowX: "auto",
-  },
+  tableContainer: { overflowX: "auto" },
   table: {
     width: "100%",
     borderCollapse: "collapse",
@@ -52,7 +49,7 @@ const styles = {
     padding: "14px 16px",
     borderBottom: "1px solid #e8eaed",
     color: "#3c4043",
-    wordBreak: "break-word", // Ensures long feedback messages don't break layout width
+    wordBreak: "break-word",
   },
   emptyState: {
     textAlign: "center",
@@ -67,7 +64,14 @@ const AllFeedback = () => {
 
   const loadFeedbacks = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/feedbacks");
+      // ✅ FIX: Add JWT token to request
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:8080/api/feedbacks", {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
       const data = await res.json();
       setFeedbacks(data);
     } catch (err) {
@@ -81,13 +85,11 @@ const AllFeedback = () => {
 
   return (
     <div style={styles.wrapper}>
-      {/* Dynamic Dashboard Section Header */}
       <div style={styles.header}>
         <h2 style={styles.title}>Customer Feedback Log</h2>
         <span style={styles.count}>{feedbacks.length} RESPONSES</span>
       </div>
 
-      {/* Structured Responsive Table */}
       <div style={styles.tableContainer}>
         <table style={styles.table}>
           <thead>
@@ -98,7 +100,6 @@ const AllFeedback = () => {
               <th style={styles.th}>Message</th>
             </tr>
           </thead>
-
           <tbody>
             {feedbacks.length === 0 ? (
               <tr>

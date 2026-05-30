@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers } from "../service/api";
+import axios from "axios";
 
-// --- Inline Style Objects ---
 const styles = {
   wrapper: {
     display: "flex",
@@ -70,11 +69,7 @@ const styles = {
 
 const Login = () => {
   const navigate = useNavigate();
-
-  const [user, setUser] = useState({
-    email: "",
-    password: "",
-  });
+  const [user, setUser] = useState({ email: "", password: "" });
 
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -82,33 +77,25 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
-      // CALL the API function properly
-      const res = await getAllUsers();
-      const allUsers = res.data; // this IS the array
+      const res = await axios.post("http://localhost:8080/api/auth/login", {
+        email: user.email,
+        password: user.password,
+      });
 
-      // find matching user
-      const foundUser = allUsers.find(
-        (u) => u.email === user.email && u.password === user.password
-      );
+      const { token, role } = res.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
 
-      if (!foundUser) {
-        alert("Invalid Email or Password!");
-        return;
-      }
-
-      alert("Login Successful!");
-
-      // redirect based on actual stored role
-      if (foundUser.role === "ROLE_USER") {
+      if (role === "ROLE_ADMIN") {
+        navigate("/admindash");
+      } else if (role === "ROLE_USER") {
         navigate("/udashboard");
       } else {
         navigate("/customerdashboard");
       }
     } catch (error) {
-      console.error("Login Error:", error);
-      alert("Something went wrong!");
+      alert("Invalid Email or Password!");
     }
   };
 
@@ -116,7 +103,6 @@ const Login = () => {
     <div style={styles.wrapper}>
       <div style={styles.container}>
         <h2 style={styles.heading}>Login Here</h2>
-
         <form style={styles.form} onSubmit={handleLogin}>
           <input
             style={styles.input}
@@ -126,7 +112,6 @@ const Login = () => {
             onChange={handleChange}
             required
           />
-
           <input
             style={styles.input}
             type="password"
@@ -135,11 +120,9 @@ const Login = () => {
             onChange={handleChange}
             required
           />
-
           <button type="submit" style={styles.submitBtn}>
             Login
           </button>
-
           <p style={styles.registerText}>
             Not registered?{" "}
             <button
@@ -156,4 +139,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login ;
